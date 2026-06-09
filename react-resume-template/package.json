@@ -6,7 +6,7 @@
     "build": "npm run compile && next build && next-sitemap",
     "clean": "rm -rf build-tsc .next",
     "compile": "tsc --build --verbose",
-    "dev": "npm run compile && next dev",
+    "dev": "npm run compile && next dev --webpack",
     "lint": "prettier --write './src/**/*.{js,jsx,json,ts,tsx}'",
     "start": "next start",
     "sitemap": "next-sitemap",
