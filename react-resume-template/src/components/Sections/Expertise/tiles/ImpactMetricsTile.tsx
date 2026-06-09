@@ -74,11 +74,10 @@ const ImpactMetricsTile: FC = () => {
       <dl className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         {METRICS.map(m => (
           <div className="flex flex-col" key={m.label}>
-            <dt className="sr-only">{m.label}</dt>
             <dd className="text-4xl font-semibold tabular-nums text-violet-600 bg-gradient-to-br from-violet-600 via-violet-500 to-violet-400 bg-clip-text text-transparent sm:text-5xl">
               <Count suffix={m.suffix} target={m.value} />
             </dd>
-            <span className="mt-1 text-sm text-muted-foreground">{m.label}</span>
+            <dt className="mt-1 text-sm text-muted-foreground">{m.label}</dt>
           </div>
         ))}
       </dl>
