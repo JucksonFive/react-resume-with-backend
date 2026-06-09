@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# Cancel in-progress runs for the same ref (e.g. on rapid pushes to a PR).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  # The Sanity client is instantiated at module load, so a production build
+  # needs these public vars to be defined. CI uses dummy values: the resume
+  # pages fetch their data client-side at runtime, so the build and the
+  # accessibility audit do not depend on a live dataset.
+  NEXT_PUBLIC_SANITY_PROJECT_ID: dummy
+  NEXT_PUBLIC_SANITY_TOKEN: dummy
+  NEXT_PUBLIC_SERVICE_ID: dummy
+  NEXT_PUBLIC_TEMPLATE_ID: dummy
+  NEXT_PUBLIC_USER_ID: dummy
+
+defaults:
+  run:
+    working-directory: react-resume-template
+
+jobs:
+  build:
+    name: Lint, test & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: react-resume-template/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting (informative)
+        # Non-blocking: surfaces Prettier drift without failing the build.
+        run: npx prettier --check './src/**/*.{js,jsx,json,ts,tsx}' || true
+
+      - name: Test with coverage
+        # Blocking: `vitest run --coverage` enforces the 80% thresholds
+        # configured in vitest.config.ts.
+        run: npm run test:coverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: react-resume-template/coverage
+          if-no-files-found: ignore
+
+      - name: Type-check & build
+        # `npm run build` runs `tsc --build` then `next build`, so this gate
+        # covers both type errors and a successful production compile.
+        run: npm run build
+
+      - name: Audit dependencies (informative)
+        # Full report including moderate/low. The blocking gate lives in the
+        # dedicated `dependency-audit` job below.
+        run: npm audit || true
+
+  dependency-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: react-resume-template/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fail on new high+ vulnerabilities
+        # Known pre-existing advisories are allowlisted in audit-ci.jsonc, so
+        # this only blocks on NEW high/critical issues.
+        run: npx audit-ci --config ./audit-ci.jsonc
+
+  lighthouse-accessibility:
+    name: Lighthouse accessibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: react-resume-template/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Run Lighthouse CI (accessibility >= 0.9)
+        # lighthouserc.json starts `npm run start`, audits / and /audioplayer,
+        # and fails the job if the accessibility score drops below 0.9.
+        run: npx --yes @lhci/cli@0.16.x autorun --config=./lighthouserc.json

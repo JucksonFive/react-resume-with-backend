@@ -1,0 +1,25 @@
+{
+  // Fail CI on high (and critical) severity advisories.
+  // Run locally with: npx audit-ci --config ./audit-ci.jsonc
+  "high": true,
+
+  // Known, pre-existing advisories in transitive dependencies (mostly Next.js
+  // and the Sanity toolchain). These are accepted for now so that CI only
+  // blocks on NEW high+ vulnerabilities introduced by future changes.
+  //
+  // Review periodically: drop an entry once the upstream fix lands and
+  // `npm audit` no longer reports it. Generated from `npm audit` on 2026-06-09.
+  "allowlist": [
+    "GHSA-fv7c-fp4j-7gwp", // @babel/plugin-transform-modules-systemjs: arbitrary code generation
+    "GHSA-q3j6-qgpj-74h6", // fast-uri: path traversal via percent-encoded dot segments
+    "GHSA-v39h-62p7-jpjc", // fast-uri: host confusion via percent-encoded authority delimiters
+    "GHSA-8h8q-6873-q5fj", // next: DoS with Server Components
+    "GHSA-26hh-7cqf-hhc6", // next: Middleware/Proxy bypass via segment-prefetch (incomplete fix follow-up)
+    "GHSA-mg66-mrh9-m8jx", // next: DoS via connection exhaustion with Cache Components
+    "GHSA-c4j6-fc7j-m34r", // next: SSRF in apps using WebSocket upgrades
+    "GHSA-492v-c6pp-mqqv", // next: Middleware/Proxy bypass via dynamic route parameter injection
+    "GHSA-267c-6grr-h53f", // next: Middleware/Proxy bypass via segment-prefetch routes
+    "GHSA-36qx-fr4f-26g5", // next: Middleware/Proxy bypass in Pages Router using i18n
+    "GHSA-c2c7-rcm5-vvqj"  // picomatch: ReDoS via extglob quantifiers
+  ]
+}
