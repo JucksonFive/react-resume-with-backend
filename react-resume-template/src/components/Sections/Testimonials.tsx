@@ -62,7 +62,7 @@ const Testimonials: FC = memo(() => {
   return (
     <section
       aria-labelledby={HEADING_ID}
-      className="bg-muted/40 py-24 sm:py-32 lg:py-40 border-y border-border"
+      className="bg-[#f7f3ea] py-24 sm:py-32 lg:py-40 border-y border-border"
       id={SectionId.Testimonials}>
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
         <Reveal>
