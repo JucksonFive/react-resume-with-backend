@@ -1,8 +1,6 @@
 import {SearchX} from 'lucide-react';
 import {FC, memo, useCallback, useMemo, useState} from 'react';
 
-import {Tabs, TabsList, TabsTrigger} from '@/components/ui/tabs';
-
 import {PortfolioItem} from '../../../data/dataDef';
 import usePortfolioItems from '../../../hooks/usePortfolioItems';
 import Reveal from '../../motion/Reveal';
@@ -52,24 +50,27 @@ const Projects: FC = memo(() => {
         </Reveal>
 
         <div className="sticky top-16 z-20 mt-10 -mx-4 bg-background/80 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:sticky lg:mx-0 lg:rounded-full lg:border lg:border-border lg:px-4">
-          <Tabs onValueChange={v => setFilter(v as Category)} value={filter}>
-            <TabsList className="flex w-full flex-wrap justify-start gap-1 bg-transparent p-0">
-              {CATEGORIES.map(c => (
-                <TabsTrigger
-                  className="cursor-pointer rounded-full px-4 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-[0_6px_18px_-10px_rgba(124,58,237,0.5)] active:translate-y-0 active:scale-[0.98] data-[state=active]:shadow-[0_8px_22px_-12px_rgba(124,58,237,0.55)] motion-reduce:transition-none motion-reduce:hover:transform-none"
+          <div aria-label="Filter projects by category" className="flex w-full flex-wrap justify-start gap-1" role="group">
+            {CATEGORIES.map(c => {
+              const isActive = filter === c.value;
+              return (
+                <button
+                  aria-pressed={isActive}
+                  className="cursor-pointer rounded-full px-4 py-1.5 text-sm transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-[0_6px_18px_-10px_rgba(124,58,237,0.5)] active:translate-y-0 active:scale-[0.98] aria-pressed:bg-background aria-pressed:text-foreground aria-pressed:shadow-[0_8px_22px_-12px_rgba(124,58,237,0.55)] motion-reduce:transition-none motion-reduce:hover:transform-none"
                   key={c.value}
-                  value={c.value}>
+                  onClick={() => setFilter(c.value)}
+                  type="button">
                   {c.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="mt-8">
           {error ? (
             <div
-              className="rounded-2xl border border-destructive/40 bg-destructive/5 p-6 text-sm text-destructive"
+              className="rounded-2xl border border-destructive/40 bg-destructive/5 p-6 text-sm text-red-800"
               role="alert">
               Couldn&apos;t load projects.{' '}
               <button className="underline" onClick={refetch} type="button">

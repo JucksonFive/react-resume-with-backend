@@ -17,7 +17,7 @@ const HeroCTA: FC = () => {
         See my work
       </MagneticButton>
       <MagneticButton
-        ariaLabel="Open chat"
+        ariaLabel="Contact me — open chat"
         className="bg-white text-neutral-900 hover:bg-white/90 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.25)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         onClick={openChat}
         size="lg"
