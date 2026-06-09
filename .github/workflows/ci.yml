@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: '24'
   PNPM_VERSION: '10'
   # The Sanity client is instantiated at module load, so a production build
   # needs these public vars to be defined. CI uses dummy values: the resume
