@@ -12,11 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '22'
-  # Node 22 ships npm 10, but the lockfile is generated locally with npm 11.
-  # The two resolve the Sanity toolchain's nested deps differently, which
-  # breaks `npm ci`. Pin CI to npm 11 so it matches local development.
-  NPM_VERSION: '11'
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10'
   # The Sanity client is instantiated at module load, so a production build
   # needs these public vars to be defined. CI uses dummy values: the resume
   # pages fetch their data client-side at runtime, so the build and the
@@ -38,26 +35,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: react-resume-template/package-lock.json
-
-      - name: Pin npm
-        run: npm install -g npm@${{ env.NPM_VERSION }}
+          cache: pnpm
+          cache-dependency-path: react-resume-template/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Check formatting (informative)
         # Non-blocking: surfaces Prettier drift without failing the build.
-        run: npx prettier --check './src/**/*.{js,jsx,json,ts,tsx}' || true
+        run: pnpm exec prettier --check './src/**/*.{js,jsx,json,ts,tsx}' || true
 
       - name: Test with coverage
         # Blocking: `vitest run --coverage` enforces the 80% thresholds
         # configured in vitest.config.ts.
-        run: npm run test:coverage
+        run: pnpm test:coverage
 
       - name: Upload coverage report
         if: always()
@@ -68,14 +66,14 @@ jobs:
           if-no-files-found: ignore
 
       - name: Type-check & build
-        # `npm run build` runs `tsc --build` then `next build`, so this gate
+        # `pnpm build` runs `tsc --build` then `next build`, so this gate
         # covers both type errors and a successful production compile.
-        run: npm run build
+        run: pnpm build
 
       - name: Audit dependencies (informative)
         # Full report including moderate/low. The blocking gate lives in the
         # dedicated `dependency-audit` job below.
-        run: npm audit || true
+        run: pnpm audit || true
 
   dependency-audit:
     name: Dependency audit
@@ -83,22 +81,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: react-resume-template/package-lock.json
-
-      - name: Pin npm
-        run: npm install -g npm@${{ env.NPM_VERSION }}
+          cache: pnpm
+          cache-dependency-path: react-resume-template/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Fail on new high+ vulnerabilities
         # Known pre-existing advisories are allowlisted in audit-ci.jsonc, so
         # this only blocks on NEW high/critical issues.
-        run: npx audit-ci --config ./audit-ci.jsonc
+        run: pnpm dlx audit-ci --config ./audit-ci.jsonc
 
   lighthouse-accessibility:
     name: Lighthouse accessibility
@@ -106,22 +105,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: react-resume-template/package-lock.json
-
-      - name: Pin npm
-        run: npm install -g npm@${{ env.NPM_VERSION }}
+          cache: pnpm
+          cache-dependency-path: react-resume-template/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: pnpm build
 
       - name: Run Lighthouse CI (accessibility >= 0.9)
-        # lighthouserc.json starts `npm run start`, audits / and /audioplayer,
+        # lighthouserc.json starts `pnpm start`, audits / and /audioplayer,
         # and fails the job if the accessibility score drops below 0.9.
-        run: npx --yes @lhci/cli@0.15.x autorun --config=./lighthouserc.json
+        run: pnpm dlx @lhci/cli@0.15.x autorun --config=./lighthouserc.json
