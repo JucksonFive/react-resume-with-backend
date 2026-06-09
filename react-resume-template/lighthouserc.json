@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "npm run start",
+      "startServerCommand": "pnpm start",
       "startServerReadyPattern": "Ready in|started server on|Local:",
       "url": ["http://localhost:3000/", "http://localhost:3000/audioplayer"],
       "numberOfRuns": 1,
