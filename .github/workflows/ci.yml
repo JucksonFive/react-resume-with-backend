@@ -124,4 +124,4 @@ jobs:
       - name: Run Lighthouse CI (accessibility >= 0.9)
         # lighthouserc.json starts `npm run start`, audits / and /audioplayer,
         # and fails the job if the accessibility score drops below 0.9.
-        run: npx --yes @lhci/cli@0.16.x autorun --config=./lighthouserc.json
+        run: npx --yes @lhci/cli@0.15.x autorun --config=./lighthouserc.json
