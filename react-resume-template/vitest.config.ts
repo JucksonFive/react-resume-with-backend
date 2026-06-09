@@ -23,6 +23,9 @@ export default defineConfig({
         'src/hooks/useInterval.ts',
         'src/hooks/useWindow.ts',
         'src/hooks/useDetectOutsideClick.ts',
+        'src/hooks/usePortfolioItems.ts',
+        'src/hooks/useProfileImage.ts',
+        'src/hooks/useNavObserver.tsx',
       ],
       thresholds: {
         statements: 80,

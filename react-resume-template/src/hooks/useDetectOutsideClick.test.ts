@@ -55,4 +55,16 @@ describe('useDetectOutsideClick', () => {
     outside.dispatchEvent(new Event('mousedown', {bubbles: true}));
     expect(handler).not.toHaveBeenCalled();
   });
+
+  it('does nothing when the ref is not attached to an element', () => {
+    const outside = document.createElement('div');
+    document.body.appendChild(outside);
+    const ref = createRef<HTMLDivElement>() as RefObject<HTMLDivElement>;
+    // ref.current stays null -> the `!ref.current` guard short-circuits.
+    const handler = vi.fn();
+    renderHook(() => useDetectOutsideClick(ref, handler));
+
+    outside.dispatchEvent(new Event('mousedown', {bubbles: true}));
+    expect(handler).not.toHaveBeenCalled();
+  });
 });
