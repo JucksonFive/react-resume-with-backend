@@ -4,6 +4,8 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+overrides:
+  esbuild: 0.28.1
 peerDependencyRules:
   allowedVersions:
     tailwindcss: ^4.3.1
