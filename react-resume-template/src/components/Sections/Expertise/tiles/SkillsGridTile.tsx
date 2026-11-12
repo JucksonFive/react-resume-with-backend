@@ -1,124 +1,98 @@
 import {FC} from 'react';
-import {BsAnthropic, BsOpenai} from 'react-icons/bs';
-import {FaAws, FaFilm, FaJava, FaNodeJs, FaReact} from 'react-icons/fa6';
-import {GoCopilot} from 'react-icons/go';
-import {
-  SiGithubactions,
-  SiJest,
-  SiLangchain,
-  SiPython,
-  SiSpringboot,
-  SiTailwindcss,
-  SiTypescript,
-  SiUnity,
-  SiUnrealengine,
-  SiVite,
-  SiVitest,
-} from 'react-icons/si';
-import {TbShieldLock} from 'react-icons/tb';
-import {VscBeaker, VscGitPullRequest} from 'react-icons/vsc';
 
-import ExpertiseTile from '../ExpertiseTile';
+import {CORE_SKILLS, EXPLORATION_SKILLS, Skill, SkillGroup, SUPPORTING_SKILLS} from './skillsData';
 
-type IconComponent = FC<{className?: string; 'aria-hidden'?: boolean}>;
-
-interface Skill {
-  name: string;
-  Icon: IconComponent;
-  color: string; // brand-tinted tailwind color class
-}
-
-interface SkillCategory {
-  title: string;
-  skills: readonly Skill[];
-}
-const CATEGORIES: readonly SkillCategory[] = [
-  {
-    title: 'Frontend',
-    skills: [
-      {name: 'TypeScript', Icon: SiTypescript, color: 'text-[#3178C6]'},
-      {name: 'React', Icon: FaReact, color: 'text-[#61DAFB]'},
-      {name: 'Vite', Icon: SiVite, color: 'text-[#646CFF]'},
-      {name: 'Tailwind CSS', Icon: SiTailwindcss, color: 'text-[#06B6D4]'},
-    ],
-  },
-  {
-    title: 'Backend',
-    skills: [
-      {name: 'Java', Icon: FaJava, color: 'text-[#E76F00]'},
-      {name: 'Spring Boot', Icon: SiSpringboot, color: 'text-[#6DB33F]'},
-      {name: 'Python', Icon: SiPython, color: 'text-[#3776AB]'},
-      {name: 'Node.js', Icon: FaNodeJs, color: 'text-[#339933]'},
-    ],
-  },
-  {
-    title: 'Cloud & DevOps',
-    skills: [
-      {name: 'AWS', Icon: FaAws, color: 'text-[#FF9900]'},
-      {name: 'GitHub Actions', Icon: SiGithubactions, color: 'text-[#2088FF]'},
-      {name: 'CI/CD', Icon: VscGitPullRequest, color: 'text-primary'},
-      {name: 'OIDC / IAM', Icon: TbShieldLock, color: 'text-[#FF9900]'},
-    ],
-  },
-  {
-    title: 'Testing & Quality',
-    skills: [
-      {name: 'Playwright', Icon: VscBeaker, color: 'text-[#2EAD33]'},
-      {name: 'Vitest', Icon: SiVitest, color: 'text-[#6E9F18]'},
-      {name: 'Jest', Icon: SiJest, color: 'text-[#C21325]'},
-    ],
-  },
-  {
-    title: 'AI & Automation',
-    skills: [
-      {name: 'LLM APIs', Icon: BsOpenai, color: 'text-[#10A37F]'},
-      {name: 'LangChain', Icon: SiLangchain, color: 'text-[#1C3C3C]'},
-      {name: 'GitHub Copilot', Icon: GoCopilot, color: 'text-foreground'},
-      {name: 'Claude Code', Icon: BsAnthropic, color: 'text-[#D97757]'},
-    ],
-  },
-  {
-    title: 'Creative & Game Projects',
-    skills: [
-      {name: 'Unreal Engine', Icon: SiUnrealengine, color: 'text-foreground'},
-      {name: 'Unity', Icon: SiUnity, color: 'text-foreground'},
-      {name: 'Adobe Premiere', Icon: FaFilm, color: 'text-[#9999FF]'},
-    ],
-  },
-] as const;
-
-const SkillCard: FC<{skill: Skill}> = ({skill}) => {
+const SkillCard: FC<{skill: Skill; emphasis?: 'primary' | 'secondary' | 'quiet'}> = ({
+  skill,
+  emphasis = 'secondary',
+}) => {
   const {name, Icon, color} = skill;
+  const iconSize = emphasis === 'primary' ? 'h-7 w-7' : 'h-[22px] w-[22px]';
+  const cardSize =
+    emphasis === 'primary'
+      ? 'min-h-24 flex-col justify-center gap-3 px-3 py-4 text-center text-base font-semibold'
+      : emphasis === 'quiet'
+        ? 'min-h-14 gap-2.5 px-3 py-2.5 text-sm text-muted-foreground'
+        : 'min-h-16 gap-3 px-3.5 py-3 text-sm font-medium';
+
   return (
-    <div className="group/skill relative flex items-center gap-3 rounded-xl border border-border bg-background/60 p-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_24px_-12px_rgba(124,58,237,0.35)]">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted ring-1 ring-border transition-colors duration-200 group-hover/skill:bg-background">
-        <Icon aria-hidden className={`h-6 w-6 ${color}`} />
+    <li
+      className={`group flex items-center rounded-xl border border-border/80 bg-card/80 shadow-sm transition-colors duration-150 hover:border-primary/30 hover:bg-card hover:shadow-md ${cardSize}`}>
+      <span
+        className={`flex shrink-0 items-center justify-center rounded-lg bg-muted/70 ${emphasis === 'primary' ? 'h-11 w-11' : 'h-9 w-9'}`}>
+        <Icon aria-hidden className={`${iconSize} ${color}`} />
+      </span>
+      <span className="leading-snug text-foreground">{name}</span>
+    </li>
+  );
+};
+
+const SkillGroupGrid: FC<{groups: readonly SkillGroup[]; emphasis?: 'secondary' | 'quiet'}> = ({
+  groups,
+  emphasis = 'secondary',
+}) => (
+  <div className="space-y-6">
+    {groups.map(group => (
+      <div key={group.title}>
+        <h5 className="mb-3 text-sm font-medium text-muted-foreground">{group.title}</h5>
+        <ul
+          aria-label={group.title}
+          className={`grid gap-2.5 ${emphasis === 'quiet' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
+          {group.skills.map(skill => (
+            <SkillCard key={skill.name} skill={skill} emphasis={emphasis} />
+          ))}
+        </ul>
       </div>
-      <p className="text-sm font-semibold tracking-tight text-foreground">{name}</p>
+    ))}
+  </div>
+);
+
+const SkillsGridTile: FC = () => (
+  <div className="w-full py-2 sm:py-4">
+    <div className="max-w-3xl">
+      <p className="text-sm font-medium text-primary">Tech Stack</p>
+      <h3 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+        Built around full-stack engineering.
+      </h3>
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+        My core expertise is building and maintaining production applications across frontend, backend, and cloud
+        infrastructure. Beyond that, I explore AI-powered development tools and interactive technologies.
+      </p>
     </div>
-  );
-};
 
-SkillCard.displayName = 'SkillCard';
-
-const SkillsGridTile: FC = () => {
-  return (
-    <ExpertiseTile eyebrow="Stack" title="A constellation, not a checklist.">
-      <div className="flex flex-col gap-8">
-        {CATEGORIES.map(category => (
-          <div key={category.title}>
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{category.title}</p>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {category.skills.map(skill => (
-                <SkillCard key={skill.name} skill={skill} />
-              ))}
-            </div>
-          </div>
+    <section aria-labelledby="core-skills-title" className="mt-8 border-t border-border/70 pt-6">
+      <h4 id="core-skills-title" className="text-lg font-semibold tracking-tight text-foreground">
+        Full Stack Development
+      </h4>
+      <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {CORE_SKILLS.map(skill => (
+          <SkillCard key={skill.name} skill={skill} emphasis="primary" />
         ))}
+      </ul>
+    </section>
+
+    <section aria-labelledby="supporting-skills-title" className="mt-8 border-t border-border/70 pt-6">
+      <h4 id="supporting-skills-title" className="text-lg font-semibold tracking-tight text-foreground">
+        Infrastructure &amp; Quality
+      </h4>
+      <div className="mt-5">
+        <SkillGroupGrid groups={SUPPORTING_SKILLS} />
       </div>
-    </ExpertiseTile>
-  );
-};
+    </section>
+
+    <section aria-labelledby="exploration-skills-title" className="mt-8 border-t border-border/70 pt-6">
+      <h4 id="exploration-skills-title" className="text-lg font-semibold tracking-tight text-foreground">
+        AI &amp; Exploration
+      </h4>
+      <div className="mt-5">
+        <SkillGroupGrid groups={EXPLORATION_SKILLS.slice(0, 1)} />
+      </div>
+      <div className="mt-6 rounded-xl bg-muted/35 px-4 py-4 sm:px-5">
+        <SkillGroupGrid groups={EXPLORATION_SKILLS.slice(1)} emphasis="quiet" />
+      </div>
+    </section>
+  </div>
+);
 
 SkillsGridTile.displayName = 'SkillsGridTile';
 
