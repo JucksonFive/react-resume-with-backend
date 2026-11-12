@@ -13,6 +13,7 @@ describe('SkillsGridTile', () => {
     for (const skill of ['TypeScript', 'React', 'Java', 'Spring Boot', 'Node.js']) {
       expect(within(core).getByText(skill)).toBeTruthy();
     }
+    expect(core.querySelectorAll('svg')).toHaveLength(5);
 
     const supporting = screen.getByRole('region', {name: 'Infrastructure & Quality'});
     for (const skill of [
@@ -29,7 +30,7 @@ describe('SkillsGridTile', () => {
       expect(within(supporting).getByText(skill)).toBeTruthy();
     }
 
-    const exploration = screen.getByRole('region', {name: 'Exploration & Additional Interests'});
+    const exploration = screen.getByRole('region', {name: 'AI & Exploration'});
     for (const skill of [
       'Python',
       'LLM APIs',
@@ -42,5 +43,6 @@ describe('SkillsGridTile', () => {
     ]) {
       expect(within(exploration).getByText(skill)).toBeTruthy();
     }
+    expect(exploration.querySelectorAll('svg')).toHaveLength(8);
   });
 });
